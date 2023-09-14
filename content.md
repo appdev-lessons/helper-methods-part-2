@@ -84,7 +84,7 @@ Let's move all of our previous inputs and tags into this block now (removing our
   </div>
 
   <button>
-    Create Movie
+    Create movie
   </button>
 <% end %>
 <!-- ... -->
@@ -159,7 +159,7 @@ Do the same for the movie description as well. This is a `<textarea>` input, so 
   </div>
 
   <button>
-    Create Movie
+    Create movie
   </button>
 <% end %>
 <!-- ... -->
@@ -171,9 +171,9 @@ The last thing is the `<button>`. Even for this, we have a `button_tag` helper m
 
 ```erb
   <!-- <button>
-    Create Movie
+    Create movie
   </button> -->
-  <%= button_tag "Create Movie" %>
+  <%= button_tag "Create movie" %>
 ```
 
 All right, so now we've replaced all of the essential parts of this form, other than `<div>`s that we use to organize it, with helper methods. Ultimately, the output is the _exact_ same HTML as before, but it's better in many ways.
@@ -182,19 +182,14 @@ The most concrete way in this example is that we didn't have to generate the CSR
 
 Make a git commit now.
 
-## Update Edit Form 00:12:00 to 00:16:00
+## Update edit form
 
-Let's take our new helper methods and do the same update on our edit page. Try to type out the new form to build some muscle memory. It's almost identical to our `new.html.erb` form. However, we can see a few key differences that need to be incorporated:
+Let's take our new helper methods and do the same update on our edit page. Try to type out the new form to build some muscle memory. It's almost identical to our `new.html.erb` form. Update the `edit.html.erb` form on your own now, and note these two key differences:
 
-```erb
-<!-- app/views/movies/new.html.erb -->
+```erb{4:(42-58),17:(19-25)}
+<!-- app/views/movies/edit.html.erb -->
 
-<h1>Edit movie</h1>
-
-<% @the_movie.errors.full_messages.each do |message| %>
-  <p style="color: red;"><%= message %></p>
-<% end %>
-
+<!-- ... -->
 <%= form_with(url: movie_path(@the_movie), method: :patch) do %>
   <div>
     <%= label_tag :title_box, "Title" %>
@@ -208,10 +203,10 @@ Let's take our new helper methods and do the same update on our edit page. Try t
     <%= text_area_tag :query_description, @the_movie.description, {id: "description_box", rows: 3 } %>
   </div>
 
-  <%= button_tag "Update Movie" %>
+  <%= button_tag "Update movie" %>
 <% end %>
+<!-- ... -->
 ```
-{: mark_lines="9"}
 
 The default method that HTML forms use is `get`. But Rails is smart, and it knows that many of our forms use `post`. So by default, the `form_with` method on our `new.html.erb` form added the `method="post"` attribute _and_ the authenticity token. 
 
