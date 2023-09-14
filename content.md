@@ -278,7 +278,7 @@ That method will return a `nil` if the `id` isn't found. (Try it in the `rails c
 
 And we can actually go one step farther and use another method:
 
-```ruby
+```ruby{3:(24-27)}
   # ...
   def show
     @the_movie = Movie.find(params.fetch(:id))
@@ -294,7 +294,7 @@ Once I deploy my app, if I'm using the `find` method, then this error message sh
 
 And another thing while we're talking about this `show` method. Conventionally, Rails developers don't say `the_movie`. We did that in to be very explicit. The convention is to name these variables the same thing as the class name and the controller name!
 
-```ruby
+```ruby{3:(5-10)}
   # ...
   def show
     @movie = Movie.find(params.fetch(:id))
@@ -309,7 +309,7 @@ Similarly, we should rename all of our `list_of_movies` variables to just `movie
 For instance, the `index` action should end up like:
 
 ```ruby
-  ...
+  # ...
   def index
     @movies = Movie.order(created_at: :desc)
 
@@ -321,15 +321,17 @@ For instance, the `index` action should end up like:
       format.html
     end
   end
-  ...
+  # ...
 ```
 
-## Query String Naming and View Refactoring 00:24:30 to 00:30:00
+## Query string naming and view refactoring
 
 Now what about those query strings? 
 
-```ruby
-  ...
+```ruby{6-7}
+# app/controllers/movies_controller.rb
+
+  # ...
   def create
     @movie = Movie.new
     @movie.title = params.fetch("query_title")
@@ -342,107 +344,78 @@ Now what about those query strings?
       render template: "movies/new.html.erb"
     end
   end
-  ...
+  # ...
 ```
-{: mark_lines="4-5"}
 
 Recall, `"query_title"` is the `name` we gave to the input in our form, which goes into query string, and then into the `params` hash that we're fetching from. But we don't need the `"query_"` construction, it was just there to remind us. 
 
 If we want to be more professional, we would just change those to the name of the column we are getting inputs for:
 
-```ruby
-  ...
-  def create
-    @movie = Movie.new
+```ruby{1:(34-38),2:(40-50)}
     @movie.title = params.fetch("title")
     @movie.description = params.fetch("description")
-
-    if @movie.valid?
-      @movie.save
-      redirect_to movies_path, notice: "Movie created successfully."
-    else
-      render template: "new"
-    end
-  end
-  ...
 ```
-{: mark_lines="4-5"}
 
-And, also, in the `params` hash, we typically fetch on symbols, rather than strings. We can only use strings and symbols interchangably in `params` because it is a special subclass of `Hash`:
+And, also, in the `params` hash, we typically fetch on symbols, rather than strings. We can only use strings and symbols interchangeably in `params` because it is a special subclass of `Hash`:
 
-```ruby
-  ...
-  def create
-    @movie = Movie.new
+```ruby{1:(33-38),2:(39-50)}
     @movie.title = params.fetch(:title)
     @movie.description = params.fetch(:description)
-
-    if @movie.valid?
-      @movie.save
-      redirect_to movies_path, notice: "Movie created successfully."
-    else
-      render template: "new"
-    end
-  end
-  ...
 ```
-{: mark_lines="4-5"}
 
-Now, what that `params` key has to match is the `name` that we assigned that input back on our form. Let's take a peek back there on the `new.html.erb` form:
+Now, that `params` key has to match the `name` that we assigned that input back on our form. Let's take a peek back there on the `new.html.erb` form:
 
-```erb
+```erb{4:(31-36),8:(24-29),14:(23-34)}
 <!-- app/views/movies/new.html.erb -->
 
-...
+<!-- ... -->
 <%= form_with(url: movie_path(@movie)) do %>
   <div>
     <%= label_tag :title_box, "Title" %>
 
-    <%= text_field_tag :query_title, @movie.title, {id: "title_box" } %>
+    <%= text_field_tag :title, @movie.title, { id: "title_box" } %>
   </div>
 
   <div>
     <%= label_tag :description_box, "Description" %>
 
-    <%= text_area_tag :query_description, @movie.description, {id: "description_box", rows: 3 } %>
+    <%= text_area_tag :description, @movie.description, { id: "description_box", rows: 3 } %>
   </div>
-...
+<!-- ... -->
 ```
-{: mark_lines="4 8 14"}
 
-First of all, note that we changed `@the_movie` to `@movie`, because we changed the name of that instance variable in the controller. Now, look at these changes to align our view template with our controller `params` fetching:
+We also changed `@the_movie` to `@movie`, because we changed the name of that instance variable in the controller. Now, look at these changes to align our view template with our controller `params` fetching:
 
-```erb
+```erb{6:(19-24),8:(53-57),12:(19-30),14:(64-74)}
 <!-- app/views/movies/new.html.erb -->
 
-...
+<!-- ... -->
 <%= form_with(url: movie_path(@movie)) do %>
   <div>
     <%= label_tag :title, "Title" %>
 
-    <%= text_field_tag :title, @movie.title, {id: "title" } %>
+    <%= text_field_tag :title, @movie.title, { id: "title" } %>
   </div>
 
   <div>
     <%= label_tag :description, "Description" %>
 
-    <%= text_area_tag :description, @movie.description, {id: "description", rows: 3 } %>
+    <%= text_area_tag :description, @movie.description, { id: "description", rows: 3 } %>
   </div>
-...
+<!-- ... -->
 ```
-{: mark_lines="6 8 12 14"}
 
-We don't need the `query_` and we don't need the `_box`. Those are names we made up to help use keep track of things, but they aren't used in a professional code base.
+We don't need the `query_` and we don't need the `_box`. Those are names we made up to help use keep track of things, but they aren't used in a professional codebase.
 
 Also, we can remove some more things here and let Rails automatically: 
  
  - set the label copy (by calling `.capitalize` on the `:title` or `:description`) 
- - and set the `for=""` / `id=""` attributes (which are just going to default to `"title"` and `"description"`):
+ - and allow `form_with` to set the `for=""` and `id=""` attributes (which are just going to default to `"title"` and `"description"`):
 
-```erb
+```erb{6,8,12,14}
 <!-- app/views/movies/new.html.erb -->
 
-...
+<!-- ... -->
 <%= form_with(url: movie_path(@movie)) do %>
   <div>
     <%= label_tag :title %>
@@ -455,13 +428,12 @@ Also, we can remove some more things here and let Rails automatically:
 
     <%= text_area_tag :description, @movie.description, { rows: 3 } %>
   </div>
-...
+<!-- ... -->
 ```
-{: mark_lines="6 8 12 14"}
 
 Spend a few minutes now manually testing your app and chasing down any error messages caused by the controller refactoring. This comes down to changing the `list_of_movies` to `movies` (plural) and any variable that includes `the_movie` or `a_movie` (see the `index.html.erb` loop!) to just be `movie`. 
 
-In AD1, we named every variable differently to be very explicit about the connections between our pages and actions. But, now that we understand the conventions, which is to just name the variable after the resource (`movie` or `movies`), we don't have to think about making up different names.
+Previously, we named every variable differently to be very explicit about the connections between our pages and actions. But, now that we understand the conventions, which is to just name the variable after the resource (`movie` or `movies`), we don't have to think about making up different names.
 
 That was a lot of refactoring. Let's make a git commit. 
 
