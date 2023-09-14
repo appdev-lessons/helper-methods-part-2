@@ -46,9 +46,9 @@ Let's start with the form in `app/views/movies/new.html.erb`. The new helper met
   <!-- ... -->
 ```
 
-As you can see, the method takes arguments. In this case we pass the option `url:` the output of our route helper `movie_path(@the_movie)) (which we know is just `"/movies"`). We also put this helper in a `do`-`end` block, because it's going to write a form for us in this block!
+As you can see, the method takes arguments. In this case we pass the option `url:` the output of our route helper `movie_path(@the_movie)` (which we know is just `"/movies"`). We also put this helper in a `do`-`end` block, because it's going to write a form for us in this block!
 
-In the live app, refresh the **/movies/new** page and "view source". You should see that `form_with` has produced:
+In the live app, refresh the `/movies/new` page and "view source". You should see that `form_with` has produced:
 
 ```erb
 <form action="/movies" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="some-long-token">
@@ -58,19 +58,14 @@ In the live app, refresh the **/movies/new** page and "view source". You should 
 
 Compare that with the form that we wrote by hand. Pretty similar right? 
 
-The `form_with` helper not only added an attribute with the accepted characterset (UTF-8), but also automatically created an authenticity token to protect our form against CSRF attacks. We don't need to worry about remembering this step with the `form_with` helper. 
+The `form_with` helper not only added an attribute with the accepted character set (UTF-8), but also automatically created an authenticity token to protect our form against CSRF attacks. We don't need to worry about remembering this step with the `form_with` helper. 
 
 Let's move all of our previous inputs and tags into this block now (removing our old `<form>` opening and closing tags):
 
-```erb
+```erb{5-23}
 <!-- app/views/movies/new.html.erb -->
 
-<h1>New movie</h1>
-
-<% @the_movie.errors.full_messages.each do |message| %>
-  <p style="color: red;"><%= message %></p>
-<% end %>
-
+<!-- ... -->
 <%= form_with(url: movie_path(@the_movie)) do %>
   <div>
     <label for="title_box">
@@ -92,6 +87,7 @@ Let's move all of our previous inputs and tags into this block now (removing our
     Create Movie
   </button>
 <% end %>
+<!-- ... -->
 ```
 
 Now what else can we do here?
@@ -152,7 +148,7 @@ But for now, let's note that the final argument to our `text_field_tag` can be a
 ```
 {: mark_lines="6"}
 
-And refreshing our **/movies/new** then viewing source, we can see that added an `id="title_box"` to our `<input>` HTML element.
+And refreshing our `/movies/new` then viewing source, we can see that added an `id="title_box"` to our `<input>` HTML element.
 
 Do the same for the movie description as well. This is a `<textarea>` input, so we need to use the helper `text_area_tag`. Also, we had a `rows="3"` attribute, so we need to add that to our optional hash. Otherwise, the rest is similar to the "Title", so the whole form should end up like:
 
@@ -202,7 +198,7 @@ All right, so now we've replaced all of the essential parts of this form, other 
 
 The most concrete way in this example is that we didn't have to generate the CSRF token manually. That's going to save us a lot of work over the hundreds of forms that we're going to make! 
 
-Make a **/git** commit now.
+Make a git commit now.
 
 ## Update Edit Form 00:12:00 to 00:16:00
 
@@ -247,7 +243,7 @@ If you view source on the new edit form, you will see that adding this argument 
 
 We never need to remember to add that again, because `form_with(..., method: :patch)` does it for us. Nifty!
 
-Does the edit form work like before we refactored? If yes, then make another **/git** commit!
+Does the edit form work like before we refactored? If yes, then make another git commit!
 
 ## Refactoring `MoviesController` 00:16:00 to 00:24:30
 
@@ -315,7 +311,7 @@ The `find` method, only takes an integer argument, and it assumes that you are s
 
 As opposed to `find_by`, which returns `nil` if the record with the given ID doesn't exist, `find` throws an error exception of class `ActiveRecord::RecordNotFound`. (Again, use the `rails console` to experiment with both methods on the `Movie` model.)
 
-Once I push this my app to Heroku, if I'm using the `find` method, then this error message shows up as a 404 page, which is the correct behavior when someone tries to visit a resource that doesn't exist (like **/movies/890909820**, or some ID number we don't have in our table). If we used `find_by` and the query returned a `nil`, then a 500 page would be shown ("Something went wrong"), which is not the experience we want for our users.
+Once I push this my app to Heroku, if I'm using the `find` method, then this error message shows up as a 404 page, which is the correct behavior when someone tries to visit a resource that doesn't exist (like `/movies/890909820`, or some ID number we don't have in our table). If we used `find_by` and the query returned a `nil`, then a 500 page would be shown ("Something went wrong"), which is not the experience we want for our users.
 
 And another thing while we're talking about this `show` method. Conventionally, Rails developers don't say `the` underscore `movie`. We did that in AD1 to be very explicit. The convention is to name these variables the same thing as the class name and the controller name!
 
@@ -488,7 +484,7 @@ Spend a few minutes now manually testing your app and chasing down any error mes
 
 In AD1, we named every variable differently to be very explicit about the connections between our pages and actions. But, now that we understand the conventions, which is to just name the variable after the resource (`movie` or `movies`), we don't have to think about making up different names.
 
-That was a lot of refactoring. Let's make a **/git** commit. 
+That was a lot of refactoring. Let's make a git commit. 
 
 ## Bundled Subhashes in `params` 00:30:00 to 00:39:00
 
@@ -509,7 +505,7 @@ Let's do some more work on our forms. We can demonstrate something with some dum
 ```
 {: mark_lines="7-10"}
 
-Now, if we refresh **/movies**, we should see our blank form with just one, un-labelled input box. If we type "hi" into the form and click "Submit", then go to our server log in the terminal (the terminal that we ran `bin/server` in that's connected to the live app), we should be able to find the `params` hash and see:
+Now, if we refresh `/movies`, we should see our blank form with just one, un-labelled input box. If we type "hi" into the form and click "Submit", then go to our server log in the terminal (the terminal that we ran `bin/server` in that's connected to the live app), we should be able to find the `params` hash and see:
 
 ```bash
 Parameters: {"zebra"=>"hi"}
@@ -532,7 +528,7 @@ What happens if I change my form slightly to add some square brackets next to `"
 ```
 {: mark_lines="8"}
 
-Again, refresh **/movies** and submit something to the blank form again. How do the `params` look? You should see something like:
+Again, refresh `/movies` and submit something to the blank form again. How do the `params` look? You should see something like:
 
 ```bash
 Parameters: {"zebra"=>["hi"]}
@@ -600,7 +596,7 @@ What else? Remove the `type="checkbox"` to go back to the default `"text"` input
 ```
 {: mark_lines="8-9"}
 
-Type something into both inputs on the **/movies** form in your live app. What do you think the. What do you think the `params` hash is going to look like? Take a guess. Is it going to be an array again with values `giraffe` and `elephant` in it?
+Type something into both inputs on the `/movies` form in your live app. What do you think the. What do you think the `params` hash is going to look like? Take a guess. Is it going to be an array again with values `giraffe` and `elephant` in it?
 
 Have a look at the server log (assuming you typed "hi" and "there" into the boxes on the form):
 
