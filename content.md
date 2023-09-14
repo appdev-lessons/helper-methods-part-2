@@ -717,6 +717,8 @@ Check the `/movies/new` form functionality and also view source on the page. You
 
 This is the point. Rails will save you a ton of time with default functionality if you name things the way we expect. You can override any of these features, but aren't they nice?
 
+Are all of the `rake grade` specs still passing? Then our refactoring was successful and it's time for another git commit!
+
 ## Challenge
 
 My challenge to you: refactor the `edit` form and the `update` action to match what we've done here with the `new` form and `create` action. After that, generate a new model, say `directors`:
