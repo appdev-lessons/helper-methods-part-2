@@ -621,7 +621,7 @@ The security researcher who discovered this security hole got attention for it b
 
 In our `create` action, we need to change the way we get the `params`:
 
-```ruby{3:(30-74)}
+```ruby{3}
   # ...
   def create
     movie_attributes = params.require(:movie).permit(:title, :description)
