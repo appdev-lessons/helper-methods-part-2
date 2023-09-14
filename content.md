@@ -22,15 +22,13 @@ Did you read the differences above? Good! Then [here is a walkthrough video for 
 
 **As you watch the video, pause it frequently, read the associated text, and type out the code.**
 
-## `form_with` 00:00:00 to 00:12:00
-
-We're continuing to work in our same [Helper Methods](https://github.com/appdev-projects/helper-methods) Gitpod project. We'll start where we left off with the `link_to` helper method. Hopefully all of your `<a>` elements are now `link_to` helper methods instead. 
+## `form_with`
 
 It's time to work on our `<form>`s and turn those into helper methods also. This is going to pay big dividends for us down the line.
 
 Let's start with the form in `app/views/movies/new.html.erb`. The new helper method we'll use to replace this whole form is `form_with`. Let's begin:
 
-```erb
+```erb{9-11}
 <!-- app/views/movies/new.html.erb -->
 
 <h1>New movie</h1>
@@ -45,9 +43,8 @@ Let's start with the form in `app/views/movies/new.html.erb`. The new helper met
 
 <form action="<%= movie_path(@the_movie))%>" method="post">
   <input name="authenticity_token" value="<%= form_authenticity_token %>" type="hidden">
-  ...
+  <!-- ... -->
 ```
-{: mark_lines="9-11" }
 
 As you can see, the method takes arguments. In this case we pass the option `url:` the output of our route helper `movie_path(@the_movie)) (which we know is just `"/movies"`). We also put this helper in a `do`-`end` block, because it's going to write a form for us in this block!
 
