@@ -16,11 +16,6 @@ So navigate to `github.com/codespaces` (or reopen the previous lesson and use th
 - Anything contained in the project "README" is now contained in this Lesson
 - I use a graphical user interface at the URL path `/git` to commit and push, _you_ should use [the VSCode built in workflow in this lesson](https://learn.firstdraft.com/lessons/50-git-commit-and-push)
 - I use `bin/server` to start my live app preview, _you_ should use `bin/dev`
-- I use `rails db:migrate`, _you_ should use `rake db:migrate`
-- You should drop the `.html.erb` when rendering a view template:
-    `render({ :template => "photo_templates/index" })` 
-    _instead of_ 
-    `render({ :template => "photo_templates/index.html.erb" })`
 </div>
 
 Did you read the differences above? Good! Then [here is a walkthrough video for this project.](https://share.descript.com/view/TrSygtEDGsx)
