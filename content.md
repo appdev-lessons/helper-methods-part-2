@@ -94,17 +94,14 @@ Now what else can we do here?
 
 For `<labels>`, we can use `label_tag`:
 
-```erb
-...
+```erb{3}
 <%= form_with(url: movie_path(@the_movie)) do %>
   <div>
     <%= label_tag :title_box, "Title" %>
 
     <input type="text" id="title_box" name="query_title" value="<%= @the_movie.title %>">
   </div>
-...
 ```
-{: mark_lines="4"}
 
 The first argument to `label_tag` is the `for=""` attribute that connects the label with the input (by the input `id=""`), and the second argument is the copy we want shown. As usual, refresh and view source on the live app, and you should see a `<label>` tag rendered by this helper method. Same as before!
 
@@ -114,20 +111,16 @@ The `for=""` attribute is now populated with the copy (`for="Title"`). That's ni
 
 We also have helper methods for our `<input>`s. You might expect it to be `input_tag`, if we're following the same kind of pattern, but it's actually not because we have a separate helper method for each type of input: 
 
-```erb
-...
+```erb{5}
 <%= form_with(url: movies_path) do %>
   <div>
     <%= label_tag :title_box, "Title" %>
 
     <%= text_field_tag :query_title, @the_movie.title %>
-    <!-- <input type="text" id="title_box" name="query_title" value="<%= @the_movie.title %>"> -->
   </div>
-...
 ```
-{: mark_lines="6-7"}
 
-The `text_field_tag` that's replacing our `<input type="text"...>` HTML element is taking the `name=""` attribute as the first argument. This `name=""` is how the input will be registered in the `params` hash (in this case, as `query_string`), so that's a very important argument. After that, we have the `value=""` attribute that we want to prepopulate our form with. We spent awhile getting those prepoulation values working, to improve the form filling experience.
+The `text_field_tag` that's replacing our `<input type="text"...>` HTML element is taking the `name=""` attribute as the first argument. This `name=""` is how the input will be registered in the `params` hash (in this case, as `query_string`), so that's a very important argument. After that, we have the `value=""` attribute that we want to prepopulate our form with.
 
 Refresh the live app and view source again. What do you notice about the `id=""` attribute with this input helper method?
 
@@ -135,63 +128,52 @@ It is just using the `name=""` attribute `query_string`, that we supplied the me
 
 But for now, let's note that the final argument to our `text_field_tag` can be a hash of additional options that I want:
 
-```erb
-...
+```erb{5:(54-75)}
 <%= form_with(url: movies_path) do %>
   <div>
     <%= label_tag :title_box, "Title" %>
 
-    <%= text_field_tag :query_title, @the_movie.title, {id: "title_box" } %>
-    <!-- <input type="text" id="title_box" name="query_title" value="<%= @the_movie.title %>"> -->
+    <%= text_field_tag :query_title, @the_movie.title, { id: "title_box" } %>
   </div>
-...
 ```
-{: mark_lines="6"}
 
 And refreshing our `/movies/new` then viewing source, we can see that added an `id="title_box"` to our `<input>` HTML element.
 
 Do the same for the movie description as well. This is a `<textarea>` input, so we need to use the helper `text_area_tag`. Also, we had a `rows="3"` attribute, so we need to add that to our optional hash. Otherwise, the rest is similar to the "Title", so the whole form should end up like:
 
-```erb
+```erb{12,14}
 <!-- app/views/movies/new.html.erb -->
 
-<h1>New movie</h1>
-
-<% @the_movie.errors.full_messages.each do |message| %>
-  <p style="color: red;"><%= message %></p>
-<% end %>
-
+<!-- ... -->
 <%= form_with(url: movie_path(@the_movie)) do %>
   <div>
     <%= label_tag :title_box, "Title" %>
 
-    <%= text_field_tag :query_title, @the_movie.title, {id: "title_box" } %>
+    <%= text_field_tag :query_title, @the_movie.title, { id: "title_box" } %>
   </div>
 
   <div>
     <%= label_tag :description_box, "Description" %>
 
-    <%= text_area_tag :query_description, @the_movie.description, {id: "description_box", rows: 3 } %>
+    <%= text_area_tag :query_description, @the_movie.description, { id: "description_box", rows: 3 } %>
   </div>
 
   <button>
     Create Movie
   </button>
 <% end %>
+<!-- ... -->
 ```
-{: mark_lines="17 19"}
 
 Check out the live app. Everything looking good? Great!
 
 The last thing is the `<button>`. Even for this, we have a `button_tag` helper method:
 
 ```erb
-...
   <!-- <button>
     Create Movie
   </button> -->
   <%= button_tag "Create Movie" %>
-<% end %>
 ```
 
 All right, so now we've replaced all of the essential parts of this form, other than `<div>`s that we use to organize it, with helper methods. Ultimately, the output is the _exact_ same HTML as before, but it's better in many ways.
