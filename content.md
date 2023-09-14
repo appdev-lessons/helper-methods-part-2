@@ -84,7 +84,7 @@ Let's move all of our previous inputs and tags into this block now (removing our
   </div>
 
   <button>
-    Create movie
+    Create Movie
   </button>
 <% end %>
 <!-- ... -->
@@ -159,7 +159,7 @@ Do the same for the movie description as well. This is a `<textarea>` input, so 
   </div>
 
   <button>
-    Create movie
+    Create Movie
   </button>
 <% end %>
 <!-- ... -->
@@ -171,9 +171,9 @@ The last thing is the `<button>`. Even for this, we have a `button_tag` helper m
 
 ```erb
   <!-- <button>
-    Create movie
+    Create Movie
   </button> -->
-  <%= button_tag "Create movie" %>
+  <%= button_tag "Create Movie" %>
 ```
 
 All right, so now we've replaced all of the essential parts of this form, other than `<div>`s that we use to organize it, with helper methods. Ultimately, the output is the _exact_ same HTML as before, but it's better in many ways.
@@ -203,7 +203,7 @@ Let's take our new helper methods and do the same update on our edit page. Try t
     <%= text_area_tag :query_description, @the_movie.description, {id: "description_box", rows: 3 } %>
   </div>
 
-  <%= button_tag "Update movie" %>
+  <%= button_tag "Update Movie" %>
 <% end %>
 <!-- ... -->
 ```
@@ -437,11 +437,11 @@ Previously, we named every variable differently to be very explicit about the co
 
 That was a lot of refactoring. Let's make a git commit. 
 
-## Bundled Subhashes in `params` 00:30:00 to 00:39:00
+## Bundled sub-hashes in `params`
 
-Let's do some more work on our forms. We can demonstrate something with some dummy code, maybe in the `index` page:
+Let's do some more work on our forms. We can demonstrate something with some dummy code, perhaps in the `index` page:
 
-```erb
+```erb{7-10}
 <!-- app/views/movies/index.html.erb -->
 
 <h1>
@@ -452,123 +452,82 @@ Let's do some more work on our forms. We can demonstrate something with some dum
   <input name="zebra">
   <button>Submit</button>
 </form>
-...
+<!-- ... -->
 ```
-{: mark_lines="7-10"}
 
-Now, if we refresh `/movies`, we should see our blank form with just one, un-labelled input box. If we type "hi" into the form and click "Submit", then go to our server log in the terminal (the terminal that we ran `bin/server` in that's connected to the live app), we should be able to find the `params` hash and see:
+Now, if we refresh `/movies`, we should see our blank form with just one, un-labelled input box. If we type "hi" into the form and click "Submit", then go to our server log in the terminal (the bash prompt that we ran `bin/dev` in that's connected to the live app), we should be able to find the `params` hash and see:
 
-```bash
+```
 Parameters: {"zebra"=>"hi"}
 ```
 
 What happens if I change my form slightly to add some square brackets next to `"zebra"`:
 
-```erb
-<!-- app/views/movies/index.html.erb -->
-
-<h1>
-  List of all movies
-</h1>
-
+```erb{2:(21-22)}
 <form>
   <input name="zebra[]">
   <button>Submit</button>
 </form>
-...
 ```
-{: mark_lines="8"}
 
-Again, refresh `/movies` and submit something to the blank form again. How do the `params` look? You should see something like:
+Again, refresh `/movies` and submit something to the blank form again. How do the `params` look? You should see something in the server log like:
 
-```bash
+```
 Parameters: {"zebra"=>["hi"]}
 ```
 
 The key is still `"zebra"`, but now it put the value into an array. Interesting. Let me put in another one of these inputs:
 
-```erb
-<!-- app/views/movies/index.html.erb -->
-
-<h1>
-  List of all movies
-</h1>
-
+```erb{3}
 <form>
   <input name="zebra[]">
   <input name="zebra[]">
   <button>Submit</button>
 </form>
-...
 ```
-{: mark_lines="9"}
 
 And on the form put something different in both input boxes then submit, and view the `params` in the server log. You should see something like:
 
-```bash
+```
 Parameters: {"zebra"=>["hi", "there"]}
 ```
 
-Rails put the two values for the two different inputs on the same `name`d input fields into an array. So now, we could do `params.fetch("zebra")` and that would return an array that we could do `.each` on to loop through. In other words, we have created nested structures in our `params`.
+Rails put the two values for the two different inputs on the same `name`d input fields into an array. So now, we could do `params.fetch("zebra")` and that would return an array that we could do `.each` on to loop through. In other words, we have created nested structures in our `params`!
 
-This gives you a lot of different power and flexibility. A classic use case here is creating checkboxes. For instance with code like this:
+This gives you a lot of different power and flexibility. Add something else to the brackets:
 
-```erb
-...
-<form>
-  <label>Red</label>
-  <input type="checkbox" name="zebra[]" value="red">
-  
-  <label>Blue</label>
-  <input type="checkbox" name="zebra[]" value="blue">
-
-  <button>Submit</button>
-</form>
-...
-```
-
-Which would lead to the `params` hash: `{"zebra"=>["red", "blue"]}`.
-
-What else? Remove the `type="checkbox"` to go back to the default `"text"` input, and add something else to the brackets:
-
-```erb
-<!-- app/views/movies/index.html.erb -->
-
-<h1>
-  List of all movies
-</h1>
-
+```erb{2:(22-28),3:(22-29)}
 <form>
   <input name="zebra[giraffe]">
   <input name="zebra[elephant]">
   <button>Submit</button>
 </form>
-...
 ```
-{: mark_lines="8-9"}
 
-Type something into both inputs on the `/movies` form in your live app. What do you think the. What do you think the `params` hash is going to look like? Take a guess. Is it going to be an array again with values `giraffe` and `elephant` in it?
+Type something into both inputs on the `/movies` form in your live app.  What do you think the `params` hash is going to look like? Take a guess. Is it going to be an array again with values `giraffe` and `elephant` in it?
 
-Have a look at the server log (assuming you typed "hi" and "there" into the boxes on the form):
+---
 
-```bash
+Have a look at the server log:
+
+```
 Parameters: {"zebra"=>{"giraffe"=>"hi", "elephant"=>"there"}}
 ```
 
 Now the value to the `"zebra"` key is also a hash; a nested hash! And the first key for the first input is `"giraffe"`. It has a value of whatever I typed. The second key is `"elephant"`, and it also has a value of what I typed. 
 
-This is a very handy way of bundling together related inputs in a form into a labeled **subhash**. 
+This is a very handy way of bundling together related inputs in a form into a labeled **sub-hash**. 
 
-This is the technique that we use more often when we're building forms. All of the inputs that are related to one model object, a `Movie` or a `Director`, are bundled into one subhash and stored a key `movie` or `director`. We want _that_ resoure to be a top level key in the `params` hash and then the subhash should have all of the attributes (or column values) for that top level key. 
+This is the technique that we use more often when we're building forms. All of the inputs that are related to one model object, a `Movie` or a `Director`, are bundled into one sub-hash and stored with the key `movie` or `director`. We want _that_ resource to be a top level key in the `params` hash and then the sub-hash should have all of the attributes (or column values) for that top level key. 
 
-## Refactor Forms with Mass Assignment 00:39:00 to 00:49:00
+## Refactor forms with mass assignment
 
 Given this new principle of nested hashes in our `params`, let's reorganize our forms. Open the `new.html.erb` form:
 
 ```erb
 <!-- app/views/movies/new.html.erb -->
 
-...
+<!-- ... -->
 <%= form_with(url: movie_path(@movie)) do %>
   <div>
     <%= label_tag :title %>
@@ -581,7 +540,7 @@ Given this new principle of nested hashes in our `params`, let's reorganize our 
 
     <%= text_area_tag :description, @movie.description, { rows: 3 } %>
   </div>
-...
+<!-- ... -->
 ```
 
 My goal with this form, is to have the `params` hash end up looking like:
@@ -598,8 +557,7 @@ Whereas, right now, it looks like:
 
 So let's change the `"name"` attribute in the helper methods to use those square brackets we just learned about:
 
-```erb
-...
+```erb{5:(25-36),11:(24-41)}
 <%= form_with(url: movie_path(@movie)) do %>
   <div>
     <%= label_tag :title %>
@@ -612,50 +570,44 @@ So let's change the `"name"` attribute in the helper methods to use those square
 
     <%= text_area_tag "movie[description]", @movie.description, { rows: 3 } %>
   </div>
-...
 ```
-{: mark_lines="6 12"}
 
-Now we can test our form at **/movies/new** and we will get an error because we haven't changed the controller yet to fetch the parameters in this new format. But, if we look at the server log, then we should see that we achieved our goal and we have subhash. 
+Now we can test our form at `/movies/new` and we will get an error because we haven't changed the controller yet to fetch the parameters in this new format. But, if we look at the server log, then we should see that we achieved our goal and we have a sub-hash. 
 
 Let's update our controller to take advantage of this in the `create` action: 
 
-```ruby
+```ruby{6:(26-53),7:(32-65)}
 # app/controllers/movies_controller.rb
 
-  ...
+  # ...
   def create
     @movie = Movie.new
     @movie.title = params.fetch(:movie).fetch(:title)
     @movie.description = params.fetch(:movie).fetch(:description)
-  ...
+  # ...
 ```
-{: mark_lines="6-7"}
 
-Now the form on **/movies/new** should work.
+Now the form on `/movies/new` should work.
 
-But with our new subhash, we can be slightly more concise. Suppose you have a `Movie` object, and you happen to have a hash laying around that has keys in it that exactly match your column names. So the hash has _exactly_ the same column names as the `movies` table.
+But with our new sub-hash, we can be slightly more concise. Suppose you have a `Movie` object, and you happen to have a hash laying around that has keys in it that exactly match your column names. So the hash has _exactly_ the same column names as the `movies` table.
 
 Well, I can say `Movie.new`, and I can give the `.new` method that hash as an argument: 
 
-```ruby
-# app/controllers/movies_controller.rb
-
-  ...
+```ruby{3-4}
+  # ...
   def create
     movie_attributes = params.fetch(:movie)
     @movie = Movie.new(movie_attributes)
     # @movie.title = params.fetch(:movie).fetch(:title)
     # @movie.description = params.fetch(:movie).fetch(:description)
-  ...
+  # ...
 ```
-{: mark_lines="5-6"}
 
 The `.new` method will iterate through the key value pairs in `movie_attributes`: `{ :title => "Some title, :description => "Some description }`, and it will assign this value to the matching column! 
 
 We don't need to have the assignment happening on separate lines. Imagine if our table had 30 columns we were trying to assign? This **mass assignment** technique would help a lot.
 
-Is this going to work? Try and refresh **/movies/new** and try the form again... Unfortunately, it's not going to work. It's not that easy, my friends. 
+Is this going to work? Try and refresh `/movies/new` and try the form again... Unfortunately, it's not going to work. It's not that easy, my friends. 
 
 I get a `ForbiddenAttributesError`. What is this? This is Rails doing more fancy security on our behalf without us even realizing it.
 
@@ -669,143 +621,75 @@ The security researcher who discovered this security hole got attention for it b
 
 In our `create` action, we need to change the way we get the `params`:
 
-```ruby
-# app/controllers/movies_controller.rb
-
-  ...
+```ruby{3:(30-44)}
+  # ...
   def create
     movie_attributes = params.require(:movie).permit(:title, :description)
     @movie = Movie.new(movie_attributes)
     # @movie.title = params.fetch(:movie).fetch(:title)
     # @movie.description = params.fetch(:movie).fetch(:description)
-  ...
+  # ...
 ```
 {: mark_lines="5"}
 
 Rather than `.fetch`ing `:movie` from the `params`, we need to `require(:movie)` and then `.permit` and list of the allowed columns. 
 
-Whenever you add a new column, you also have whitelist it in your **strong parameters** list and then it'll work. Try the **/movies/new** form and see.
+Whenever you add a new column, you also have to whitelist it in your **strong parameters** list and then it'll work. Try the `/movies/new` form and see.
 
-What if you added a new column or forgot about one of them, like if you remove `:description` from the `permit` list above? Try it and check the server log. You should see in red font `Unpermitted parameter: :description`. Rails makes this error really prominent, because it's so common. Don't forget to whitelist all of the columns you want to modify, but, if you do, you'll be reminded!
+What if you added a new column or forgot about one of them, like if you remove `:description` from the `permit` list above? Try it and check the server log. You should see in red font `Unpermitted parameter: :description`. Rails makes this error really prominent, because it's so common. Don't forget to whitelist all of the columns you want to modify, but, if you do forget, you'll be reminded!
 
-Please take a moment and refactor the `update` action as well to follow this new format. When you're done, make a **/git** commit.
+Please take a moment and refactor the `update` action as well to follow this new format. When you're done, test the changes with `rake grade`, then make a git commit.
 
-## Form Builder with Model 00:49:00 to 01:06:00
+## Form builder with model
 
-We need to go back to our forms and make sure the `for=""` and `id=""` attributes matchup between labels and inputs. They already did before, but when we introduced that `[]` square bracket syntax to get to mass assignment with whitelisting, we went a bit backwards:
+We need to go back to our forms and make sure the `for=""` and `id=""` attributes matchup between labels and inputs. They already did before, but when we introduced that `[]` square bracket syntax to get to mass assignment with whitelisting, we went a bit backwards.
 
-```erb
-<!-- app/views/movies/new.html.erb -->
-
-<h1>New movie</h1>
-
-<% @movie.errors.full_messages.each do |message| %>
-  <p style="color: red;"><%= message %></p>
-<% end %>
-
-<%= form_with(url: movies_path) do %>
-  <div>
-    <%= label_tag :title %>
-
-    <%= text_field_tag "movie[title]", @movie.title %>
-  </div>
-
-  <div>
-    <%= label_tag :description %>
-
-    <%= text_area_tag "movie[description]", @movie.description, { rows: 3 } %>
-  </div>
-
-  <%= button_tag "Create Movie" %>
-<% end %>
-```
-{: mark_lines=""}
-
-Well, there's actually a better way if we want that nested hash behavior. If we're making a form for the specific purpose of creating a record in our database table or updating a record with `ActiveRecord`, there's a more specific way of using `form_with`. Here's how it works. 
+If we're making a form for the specific purpose of creating a record in our database table or updating a record with `ActiveRecord`, there's a more specific way of using `form_with`.
 
 Instead of saying `form_with(url: ...)`, you say `form_with(model: ...)`. And the argument for this should be the object _itself_, that you're trying to build a form for! 
 
-```erb
+```erb{4:(15-27)}
 <!-- app/views/movies/new.html.erb -->
 
-<h1>New movie</h1>
-
-<% @movie.errors.full_messages.each do |message| %>
-  <p style="color: red;"><%= message %></p>
-<% end %>
-
+<!-- ... -->
 <%= form_with(model: @movie) do %>
   <div>
     <%= label_tag :title %>
 
-    <%= text_field_tag "movie[title]", @movie.title %>
-  </div>
-
-  <div>
-    <%= label_tag :description %>
-
-    <%= text_area_tag "movie[description]", @movie.description, { rows: 3 } %>
-  </div>
-
-  <%= button_tag "Create Movie" %>
-<% end %>
+<!-- ... -->
 ```
-{: mark_lines="9"}
 
-Now, what the heck is this `@movie` object? 
-
-Remember how we created a new `@movie` object in the `new` action in our controller? We did that only because we were going to draw the errors collection in the first few lines on the `new.html.erb` page. We created a blank object just to satisfy the case where a user visits **/movies/new** for the first time, and there is no prepopulating of fields to do. 
+Remember how we created a new `@movie` object in the `new` action in our controller? We did that only because we were going to draw the errors collection in the first few lines on the `new.html.erb` page. We created a blank object just to satisfy the case where a user visits `/movies/new` for the first time, and there is no prepopulating of fields to do. 
 
 Now `@movie` is coming in handy again, by telling the form that we want to `create` this new empty movie object. We want to take this empty thing and save it to our database.
 
-Okay, with only that change, what's going to happen to the `action` attribute on the form?
+With only that change, what's going to happen to the `action` attribute on the form?
 
-Refresh **/movies/new** and view source. It did the same exact thing! The `action` is still `"/movies"`. 
+Refresh `/movies/new` and view source. It did the same exact thing! The `action` is still `"/movies"`. 
 
-This is another one of these so-called "magical" instances. Rails knows, or assumes, that there is a route called `@movie.class.downcase` (`movie`) that is an alias for`"/movies"`, and it can then call `movie_url` and find the action associated with that route in `config/routes.rb` (`create`) to build a form for the new movie!
+Rails knows, or assumes, that there is a route called `@movie.class.downcase` (i.e. `movie`) that is an alias for `"/movies"`, and it can then call `movie_url` and find the action associated with that route in `config/routes.rb` (i.e. `movies#create`) to build a form for the new movie!
 
-Madness, right? This is the result of all of these compounding dividends, straight from our RESTful routes to here!
+This is the result of all of these compounding dividends, straight from our RESTful routes to here!
 
 Another benefit of using `form_with(model: ...)` is that there's now a block variable, known as a **form builder object**. 
 
-```erb
+```erb{4:(33-38)}
 <!-- app/views/movies/new.html.erb -->
 
-<h1>New movie</h1>
-
-<% @movie.errors.full_messages.each do |message| %>
-  <p style="color: red;"><%= message %></p>
-<% end %>
-
+<!-- ... -->
 <%= form_with(model: @movie) do |form| %>
   <div>
     <%= label_tag :title %>
 
-    <%= text_field_tag "movie[title]", @movie.title %>
-  </div>
-
-  <div>
-    <%= label_tag :description %>
-
-    <%= text_area_tag "movie[description]", @movie.description, { rows: 3 } %>
-  </div>
-
-  <%= button_tag "Create Movie" %>
-<% end %>
+<!-- ... -->
 ```
-{: mark_lines="9"}
 
-Conventially, we just call it `form`. Now that `form` object has methods called `.label`, `.text_field`, etc., which we can use like so:
+Conventionally, we just call it `form`. That `form` object has methods called `.label`, `.text_field`, etc., which we can use like so:
 
-```erb
+```erb{6,8,12,14,17}
 <!-- app/views/movies/new.html.erb -->
 
-<h1>New movie</h1>
-
-<% @movie.errors.full_messages.each do |message| %>
-  <p style="color: red;"><%= message %></p>
-<% end %>
-
+<!-- ... -->
 <%= form_with(model: @movie) do |form| %>
   <div>
     <%= form.label :title %>
@@ -822,39 +706,38 @@ Conventially, we just call it `form`. Now that `form` object has methods called 
   <%= form.button %>
 <% end %>
 ```
-{: mark_lines="11 13 17 19 22"}
 
-We dropped all our syntax for the nested mass assignment subhash, because form is associated with the `@movie` object, which is an instance of `Movie`! We also dropped references to `@movie.title` and `@movie.description`, again because we already have the reference to `@movie` in the form builder. 
+We dropped all of our syntax for the nested mass assignment sub-hash, because `form` is associated with the `@movie` object, which is an instance of `Movie`! We also dropped references to `@movie.title` and `@movie.description`, again because we already have the reference to `@movie` in the form builder. 
 
 Finally, we didn't even need to put any "Create Movie" copy on the `form.button` method, because Rails will check and see that the object does not exist in the database yet (it has not been **persisted**), so it will choose the copy "Create Movie" for us.
 
 Wow, Rails magic indeed.
 
-Check the **/movies/new** form functionality and also view source on the page. You should still see all the syntax and attributes we spent time writing on our own, now done in a few succinct lines of code by Rails!
+Check the `/movies/new` form functionality and also view source on the page. You should still see all the syntax and attributes we spent time writing on our own, now done in a few succinct lines of code by Rails!
 
-This is the point. Rails will save you a ton of time with default functionallity if you name things the way we expect. You can override any of these features, but aren't they nice?
+This is the point. Rails will save you a ton of time with default functionality if you name things the way we expect. You can override any of these features, but aren't they nice?
 
-## Challenge 01:03:00 to 01:06:00
+## Challenge
 
 My challenge to you: refactor the `edit` form and the `update` action to match what we've done here with the `new` form and `create` action. After that, generate a new model, say `directors`:
 
-```bash
+```
 rails g model director name ...
 ```
 
 Give it a few more columns (maybe date of birth, bio, etc.). 
 
-Starting from only this model (not a scaffold) try to build up the entire resource. All of the routes. The seven golden actions in the controller that we did here. But do it all in this modern way.
+Starting from only this model file `app/models/director.rb` (_not_ a full scaffold) try to build up the entire resource. All of the routes. The seven golden actions in the controller that we did here. But do it all in this modern way.
 
-And one last thing. Because these seven "golden" routes are so common, there's actualy a shortcut to create them all:
+And one last thing. Because these seven "golden" routes are so common, there's actually a shortcut to create them all:
 
-```ruby
+```ruby{6}
 # config/routes.rb
 
 Rails.application.routes.draw do
   root "movies#index"
 
-  resources "movies"
+  resources :movies
 
   # # CREATE
   # post "/movies" => "movies#create", as: :movies # movies_url and movies_path 
@@ -874,6 +757,7 @@ Rails.application.routes.draw do
   #------------------------------
 end
 ```
-{: mark_lines="6"}
 
-That's it. We can comment out all seven routes, including the named route helper methods we defined after `as:`, and just write `resources "movies"` and all those routes and helper methods will be defined in our app! Boom.
+That's it. We can comment out all seven routes, including the named route helper methods we defined after `as:`, and just write `resources :movies` and all those routes and helper methods will be defined in our app! Boom.
+
+---
