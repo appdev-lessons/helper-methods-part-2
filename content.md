@@ -222,7 +222,7 @@ We never need to remember to add that again, because `form_with(..., method: :pa
 
 Does the edit form work like before we refactored? If yes, then make another git commit!
 
-## Refactoring `MoviesController` 00:16:00 to 00:24:30
+## Refactoring `MoviesController`
 
 Our views are now much more concise. We're using Ruby helper methods embedded in the view templates to generate HTML in a more secure way, and in a more reusable way using route helper methods.
 
@@ -238,10 +238,12 @@ should end up like:
 matching_movies = Movie.where(id: the_id)
 ```
 
-In AD1, we were very deliberate in the three steps to get an `ActiveRecord` instance (a single row of a table) compared to an `ActiveRecord:Relation` (many rows of a table):
+Previously, we were very deliberate in the three steps to get an `ActiveRecord` instance (a single row of a table) compared to an `ActiveRecord:Relation` (many rows of a table):
 
 ```ruby
-  ...
+# app/controllers/movies_controller.rb
+
+  # ...
   def show
     the_id = params.fetch(:id) # FIRST we get the ID
 
@@ -249,27 +251,27 @@ In AD1, we were very deliberate in the three steps to get an `ActiveRecord` inst
 
     @the_movie = matching_movies.first # FINALLY we get one instance of ActiveRecord, or one row
   end
-  ...
+  # ...
 ```
 
-As you might expect, professional Rails, developers do not do this. Instead, you will often see:
+As you might expect, professional Rails developers do not do this. Instead, you will often see:
 
-```ruby
-  ...
+```ruby{3}
+  # ...
   def show
     @the_movie = Movie.where(id: params.fetch(:id)).first
   end
-  ...
+  # ...
 ```
 
 There's actually a succinct method that is designed to do exactly that. It's called `find_by`, and it's exactly the same thing as `.where`, except that if automatically returns just the `.first` record given a collection:
 
-```ruby
-  ...
+```ruby{3:(24-30,53-54)}
+  # ...
   def show
-    @the_movie = Movie.find_by(id: params.fetch(:id))
+    @the_movie = Movie.find_by(id: params.fetch(:id)) 
   end
-  ...
+  # ...
 ```
 
 That method will return a `nil` if the `id` isn't found. (Try it in the `rails console` to see for yourself.)
@@ -277,27 +279,27 @@ That method will return a `nil` if the `id` isn't found. (Try it in the `rails c
 And we can actually go one step farther and use another method:
 
 ```ruby
-  ...
+  # ...
   def show
     @the_movie = Movie.find(params.fetch(:id))
   end
-  ...
+  # ...
 ```
 
 The `find` method, only takes an integer argument, and it assumes that you are searching on the table's ID column. No need to tell it which column as we did with `.where`. 
 
 As opposed to `find_by`, which returns `nil` if the record with the given ID doesn't exist, `find` throws an error exception of class `ActiveRecord::RecordNotFound`. (Again, use the `rails console` to experiment with both methods on the `Movie` model.)
 
-Once I push this my app to Heroku, if I'm using the `find` method, then this error message shows up as a 404 page, which is the correct behavior when someone tries to visit a resource that doesn't exist (like `/movies/890909820`, or some ID number we don't have in our table). If we used `find_by` and the query returned a `nil`, then a 500 page would be shown ("Something went wrong"), which is not the experience we want for our users.
+Once I deploy my app, if I'm using the `find` method, then this error message shows up as a 404 page, which is the correct behavior when someone tries to visit a resource that doesn't exist (like `/movies/890909820`, or some ID number we don't have in our table). If we used `find_by` and the query returned a `nil`, then a 500 page would be shown ("Something went wrong"), which is not the experience we want for our users.
 
-And another thing while we're talking about this `show` method. Conventionally, Rails developers don't say `the` underscore `movie`. We did that in AD1 to be very explicit. The convention is to name these variables the same thing as the class name and the controller name!
+And another thing while we're talking about this `show` method. Conventionally, Rails developers don't say `the_movie`. We did that in to be very explicit. The convention is to name these variables the same thing as the class name and the controller name!
 
 ```ruby
-  ...
+  # ...
   def show
     @movie = Movie.find(params.fetch(:id))
   end
-  ...
+  # ...
 ```
 
 You _can_ name your variables whatever you want to, but it's just a convention and you'll see this done a lot.
