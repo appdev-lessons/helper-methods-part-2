@@ -37,26 +37,25 @@ Let's start with the form in `app/views/movies/new.html.erb`. The new helper met
   <p style="color: red;"><%= message %></p>
 <% end %>
 
-<%= form_with(url: movie_path(@the_movie)) do %>
+<%= form_with(url: movie_path(@the_movie), data: { turbo: false }) do %>
   
 <% end %>
 
-<form action="<%= movie_path(@the_movie))%>" method="post">
+<form action="<%= movie_path(@the_movie))%>" method="post" data-turbo="false">
   <input name="authenticity_token" value="<%= form_authenticity_token %>" type="hidden">
   <!-- ... -->
 ```
 
 As you can see, the method takes arguments. In this case we pass the option `url:` the output of our route helper `movie_path(@the_movie)` (which we know is just `"/movies"`). We also put this helper in a `do`-`end` block, because it's going to write a form for us in this block!
 
-In the live app, refresh the `/movies/new` page and "view source". You should see that `form_with` has produced:
+<div class="bg-red-100 py-1 px-5" markdown="1">
 
-```erb
-<form action="/movies" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="some-long-token">
+In the walkthrough video I did not add `data: { turbo: false }`, as another argument to `form_with`. Be sure you add this to your `form_with`, similar to the `data-turbo="false"` that we manually added to the `<form>` HTML element. Again, this is because [Turbo](https://turbo.hotwired.dev/) is on by default in this newer Rails version. **Soon you won't need to worry about remembering this step!**
+</div>
 
-</form>
-```
+In the live app, refresh the `/movies/new` page and "view source", and compare the output of `form_with` with the `<form>` that we wrote by hand. 
 
-Compare that with the form that we wrote by hand. Pretty similar right? 
+Pretty similar right? 
 
 The `form_with` helper not only added an attribute with the accepted character set (UTF-8), but also automatically created an authenticity token to protect our form against CSRF attacks. We don't need to worry about remembering this step with the `form_with` helper. 
 
@@ -66,7 +65,7 @@ Let's move all of our previous inputs and tags into this block now (removing our
 <!-- app/views/movies/new.html.erb -->
 
 <!-- ... -->
-<%= form_with(url: movie_path(@the_movie)) do %>
+<%= form_with(url: movie_path(@the_movie), data: { turbo: false }) do %>
   <div>
     <label for="title_box">
       Title
@@ -95,7 +94,7 @@ Now what else can we do here?
 For `<labels>`, we can use `label_tag`:
 
 ```erb{3}
-<%= form_with(url: movie_path(@the_movie)) do %>
+<%= form_with(url: movie_path(@the_movie), data: { turbo: false }) do %>
   <div>
     <%= label_tag :title_box, "Title" %>
 
@@ -112,7 +111,7 @@ The `for=""` attribute is now populated with the copy (`for="Title"`). That's ni
 We also have helper methods for our `<input>`s. You might expect it to be `input_tag`, if we're following the same kind of pattern, but it's actually not because we have a separate helper method for each type of input: 
 
 ```erb{5}
-<%= form_with(url: movies_path) do %>
+<%= form_with(url: movies_path, data: { turbo: false }) do %>
   <div>
     <%= label_tag :title_box, "Title" %>
 
@@ -129,7 +128,7 @@ It is just using the `name=""` attribute `query_string`, that we supplied the me
 But for now, let's note that the final argument to our `text_field_tag` can be a hash of additional options that I want:
 
 ```erb{5:(54-75)}
-<%= form_with(url: movies_path) do %>
+<%= form_with(url: movies_path, data: { turbo: false }) do %>
   <div>
     <%= label_tag :title_box, "Title" %>
 
@@ -145,7 +144,7 @@ Do the same for the movie description as well. This is a `<textarea>` input, so 
 <!-- app/views/movies/new.html.erb -->
 
 <!-- ... -->
-<%= form_with(url: movie_path(@the_movie)) do %>
+<%= form_with(url: movie_path(@the_movie), data: { turbo: false }) do %>
   <div>
     <%= label_tag :title_box, "Title" %>
 
@@ -164,6 +163,11 @@ Do the same for the movie description as well. This is a `<textarea>` input, so 
 <% end %>
 <!-- ... -->
 ```
+
+<div class="bg-red-100 py-1 px-5" markdown="1">
+
+Did you add the `data: { turbo: false }` argument to `form_with` as shown in the code block above? It was not in the walkthrough video, so make sure you have properly added it in your form!
+</div>
 
 Check out the live app. Everything looking good? Great!
 
@@ -190,7 +194,7 @@ Let's take our new helper methods and do the same update on our edit page. Try t
 <!-- app/views/movies/edit.html.erb -->
 
 <!-- ... -->
-<%= form_with(url: movie_path(@the_movie), method: :patch) do %>
+<%= form_with(url: movie_path(@the_movie), method: :patch, data: { turbo: false }) do %>
   <div>
     <%= label_tag :title_box, "Title" %>
 
@@ -208,6 +212,11 @@ Let's take our new helper methods and do the same update on our edit page. Try t
 <!-- ... -->
 ```
 
+<div class="bg-red-100 py-1 px-5" markdown="1">
+
+Did you add the `data: { turbo: false }` argument to `form_with` as shown in the code block above? It was not in the walkthrough video, so make sure you have properly added it in your form!
+</div>
+
 The default method that HTML forms use is `get`. But Rails is smart, and it knows that many of our forms use `post`. So by default, the `form_with` method on our `new.html.erb` form added the `method="post"` attribute _and_ the authenticity token. 
 
 Similarly, we can tell `form_with` exactly which method (HTTP verb) we want to use. In the case of our `edit.html.erb` form, we actually want the `method: :patch`, which we pass in as an argument above.
@@ -218,7 +227,7 @@ If you view source on the new edit form, you will see that adding this argument 
 <input name="_method" value="patch" type="hidden">
 ```
 
-We never need to remember to add that again, because `form_with(..., method: :patch)` does it for us. Nifty!
+We never need to remember to add that again, because `form_with(..., method: :patch, ...)` does it for us. Nifty!
 
 Does the edit form work like before we refactored? If yes, then make another git commit!
 
@@ -369,7 +378,7 @@ Now, that `params` key has to match the `name` that we assigned that input back 
 <!-- app/views/movies/new.html.erb -->
 
 <!-- ... -->
-<%= form_with(url: movie_path(@movie)) do %>
+<%= form_with(url: movie_path(@movie), data: { turbo: false }) do %>
   <div>
     <%= label_tag :title_box, "Title" %>
 
@@ -390,7 +399,7 @@ We also changed `@the_movie` to `@movie`, because we changed the name of that in
 <!-- app/views/movies/new.html.erb -->
 
 <!-- ... -->
-<%= form_with(url: movie_path(@movie)) do %>
+<%= form_with(url: movie_path(@movie), data: { turbo: false }) do %>
   <div>
     <%= label_tag :title, "Title" %>
 
@@ -416,7 +425,7 @@ Also, we can remove some more things here and let Rails automatically:
 <!-- app/views/movies/new.html.erb -->
 
 <!-- ... -->
-<%= form_with(url: movie_path(@movie)) do %>
+<%= form_with(url: movie_path(@movie), data: { turbo: false }) do %>
   <div>
     <%= label_tag :title %>
 
@@ -528,7 +537,7 @@ Given this new principle of nested hashes in our `params`, let's reorganize our 
 <!-- app/views/movies/new.html.erb -->
 
 <!-- ... -->
-<%= form_with(url: movie_path(@movie)) do %>
+<%= form_with(url: movie_path(@movie), data: { turbo: false }) do %>
   <div>
     <%= label_tag :title %>
 
@@ -558,7 +567,7 @@ Whereas, right now, it looks like:
 So let's change the `"name"` attribute in the helper methods to use those square brackets we just learned about:
 
 ```erb{5:(25-36),11:(24-41)}
-<%= form_with(url: movie_path(@movie)) do %>
+<%= form_with(url: movie_path(@movie), data: { turbo: false }) do %>
   <div>
     <%= label_tag :title %>
 
@@ -630,7 +639,6 @@ In our `create` action, we need to change the way we get the `params`:
     # @movie.description = params.fetch(:movie).fetch(:description)
   # ...
 ```
-{: mark_lines="5"}
 
 Rather than `.fetch`ing `:movie` from the `params`, we need to `require(:movie)` and then `.permit` and list of the allowed columns. 
 
@@ -652,12 +660,17 @@ Instead of saying `form_with(url: ...)`, you say `form_with(model: ...)`. And th
 <!-- app/views/movies/new.html.erb -->
 
 <!-- ... -->
-<%= form_with(model: @movie) do %>
+<%= form_with(model: @movie, data: { turbo: false }) do %>
   <div>
     <%= label_tag :title %>
 
 <!-- ... -->
 ```
+
+<div class="bg-red-100 py-1 px-5" markdown="1">
+
+Did you add the `data: { turbo: false }` argument to `form_with` as shown in the code block above? It was not in the walkthrough video, so make sure you have properly added it in your form!
+</div>
 
 Remember how we created a new `@movie` object in the `new` action in our controller? We did that only because we were going to draw the errors collection in the first few lines on the `new.html.erb` page. We created a blank object just to satisfy the case where a user visits `/movies/new` for the first time, and there is no prepopulating of fields to do. 
 
@@ -677,7 +690,7 @@ Another benefit of using `form_with(model: ...)` is that there's now a block var
 <!-- app/views/movies/new.html.erb -->
 
 <!-- ... -->
-<%= form_with(model: @movie) do |form| %>
+<%= form_with(model: @movie, data: { turbo: false }) do |form| %>
   <div>
     <%= label_tag :title %>
 
@@ -690,7 +703,7 @@ Conventionally, we just call it `form`. That `form` object has methods called `.
 <!-- app/views/movies/new.html.erb -->
 
 <!-- ... -->
-<%= form_with(model: @movie) do |form| %>
+<%= form_with(model: @movie, data: { turbo: false }) do |form| %>
   <div>
     <%= form.label :title %>
 
