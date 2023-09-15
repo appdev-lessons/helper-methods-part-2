@@ -1,4 +1,4 @@
-# Helper Methods Part 2
+# Helper Methods Part 2: Forms
 
 ## Getting started
 
