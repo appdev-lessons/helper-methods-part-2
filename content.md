@@ -164,11 +164,6 @@ Do the same for the movie description as well. This is a `<textarea>` input, so 
 <!-- ... -->
 ```
 
-<div class="bg-red-100 py-1 px-5" markdown="1">
-
-Did you add the `data: { turbo: false }` argument to `form_with` as shown in the code block above? It was not in the walkthrough video, so make sure you have properly added it in your form!
-</div>
-
 Check out the live app. Everything looking good? Great!
 
 The last thing is the `<button>`. Even for this, we have a `button_tag` helper method:
@@ -686,7 +681,7 @@ This is the result of all of these compounding dividends, straight from our REST
 
 Another benefit of using `form_with(model: ...)` is that there's now a block variable, known as a **form builder object**. 
 
-```erb{4:(33-38)}
+```erb{4:(57-62)}
 <!-- app/views/movies/new.html.erb -->
 
 <!-- ... -->
