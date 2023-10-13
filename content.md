@@ -37,16 +37,16 @@ Let's start with the form in `app/views/movies/new.html.erb`. The new helper met
   <p style="color: red;"><%= message %></p>
 <% end %>
 
-<%= form_with(url: movie_path(@the_movie), data: { turbo: false }) do %>
+<%= form_with(url: movies_path, data: { turbo: false }) do %>
   
 <% end %>
 
-<form action="<%= movie_path(@the_movie))%>" method="post" data-turbo="false">
+<form action="<%= movies_path %>" method="post" data-turbo="false">
   <input name="authenticity_token" value="<%= form_authenticity_token %>" type="hidden">
   <!-- ... -->
 ```
 
-As you can see, the method takes arguments. In this case we pass the option `url:` the output of our route helper `movie_path(@the_movie)` (which we know is just `"/movies"`). We also put this helper in a `do`-`end` block, because it's going to write a form for us in this block!
+As you can see, the method takes arguments. In this case we pass the option `url:` the output of our route helper `movies_path` (which we know is just a POST to `"/movies"`). We also put this helper in a `do`-`end` block, because it's going to write a form for us in this block!
 
 <div class="bg-red-100 py-1 px-5" markdown="1">
 
@@ -65,7 +65,7 @@ Let's move all of our previous inputs and tags into this block now (removing our
 <!-- app/views/movies/new.html.erb -->
 
 <!-- ... -->
-<%= form_with(url: movie_path(@the_movie), data: { turbo: false }) do %>
+<%= form_with(url: movies_path, data: { turbo: false }) do %>
   <div>
     <label for="title_box">
       Title
@@ -94,7 +94,7 @@ Now what else can we do here?
 For `<labels>`, we can use `label_tag`:
 
 ```erb{3}
-<%= form_with(url: movie_path(@the_movie), data: { turbo: false }) do %>
+<%= form_with(url: movies_path, data: { turbo: false }) do %>
   <div>
     <%= label_tag :title_box, "Title" %>
 
@@ -144,7 +144,7 @@ Do the same for the movie description as well. This is a `<textarea>` input, so 
 <!-- app/views/movies/new.html.erb -->
 
 <!-- ... -->
-<%= form_with(url: movie_path(@the_movie), data: { turbo: false }) do %>
+<%= form_with(url: movies_path, data: { turbo: false }) do %>
   <div>
     <%= label_tag :title_box, "Title" %>
 
